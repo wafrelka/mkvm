@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -ue
+
+name="${1:-"${MKVM_INSTANCE:-}"}"
+vm_dir="$MKVM_ROOT/machines/$name"
+
+if [ -z "$name" ]; then
+    printf "instance name required\n" >&2
+    exit 1
+fi
+
+if [ ! -d "$vm_dir" ]; then
+    status="uninitialized"
+else
+    raw_status="$(cd "$vm_dir" && vagrant status)"
+    status="$(grep "^default" <<< "$raw_status" | head -n 1 | tr -s ' ' | cut -d ' ' -f 2-)"
+    if (grep "running" <<<"$status" >/dev/null); then
+        status=$'\e'"[1;32m$status"$'\e'"[m"
+    fi
+fi
+
+printf "%s: %s\n" "$name" "$status"
