@@ -12,6 +12,8 @@ instance_dir_of() {
 
 run_vagrant() {
     local name="$1"
+    local dir
+    dir="$(instance_dir_of "${name}")"
     shift 1
-    cd "$(instance_dir_of "${name}")" && vagrant "$@"
+    cd "${dir}" && vagrant "$@"
 }
