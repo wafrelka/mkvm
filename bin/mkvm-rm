@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -ue
+
+for arg in "$@"; do
+	vm_dir="$MKVM_ROOT/machines/$arg"
+	if [ ! -d "$vm_dir" ]; then
+		printf "machine not found: %s\n" "$arg" >&2
+		exit 1
+	fi
+	(cd "$vm_dir" && vagrant destroy)
+	rm -rf "$vm_dir"
+done

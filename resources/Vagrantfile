@@ -1,0 +1,13 @@
+ports ||= []
+mounts ||= []
+box_name ||= "archlinux/archlinux"
+
+Vagrant.configure("2") do |config|
+    config.vm.box = box_name
+    ports.each do |guest_port, host_port|
+        config.vm.network "forwarded_port", guest: guest_port, host: host_port, host_ip: "127.0.0.1"
+    end
+    mounts.each do |src, dest|
+        config.vm.synced_folder src, dest
+    end
+end

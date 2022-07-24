@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -ue
+
+name="$1"
+vm_dir="$MKVM_ROOT/machines/$name"
+
+cd "$vm_dir"
+vagrant halt

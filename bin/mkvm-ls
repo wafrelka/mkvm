@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if [ -d "$MKVM_ROOT/machines" ]; then
+	ls -1 "$MKVM_ROOT/machines"
+fi

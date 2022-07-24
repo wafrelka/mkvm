@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -ue
+
+HERE="$(readlink -f "$(dirname "$0")")"
+
+if [ "$#" -lt 1 ]; then
+	printf "usage: %s <COMMAND> [ARGS..]\n" "$0"
+	exit 1
+fi
+
+cmd="$1"
+shift 1
+script="$HERE/mkvm-$cmd"
+
+MKVM_BIN="$HERE" MKVM_ROOT="$HOME/.mkvm" exec "$script" "$@"

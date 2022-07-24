@@ -1,0 +1,67 @@
+#!/bin/bash
+
+set -ue
+
+DEFAULT_DISTRO="arch"
+declare -A BOXES=(
+	["arch"]="archlinux/archlinux"
+	["ubuntu"]="ubuntu/focal64"
+)
+
+name=""
+distro=""
+ports=()
+mounts=()
+
+while [ "$#" -ne 0 ]; do
+	case "$1" in
+		"-d" | "--distro" ) distro="$2"; shift 2 ;;
+		"-p" | "--port" ) ports+=("$2"); shift 2 ;;
+		"-m" | "--mount" ) mounts+=("$2"); shift 2 ;;
+		* ) name="$1"; shift 1 ;;
+	esac
+done
+
+vm_dir="$MKVM_ROOT/machines/$name"
+boxname_file="$vm_dir/.boxname"
+vm_vfile="$vm_dir/Vagrantfile"
+src_vfile="$MKVM_BIN/../resources/Vagrantfile"
+
+if [ -f "$boxname_file" ]; then
+	if [ -n "$distro" ]; then
+		printf "cannot change distribution without recreating the virtual machine\n" >&2
+		exit 1
+	fi
+	box_name="$(cat "$boxname_file")"
+else
+	mkdir -p "$vm_dir"
+	box_name="${BOXES["${distro:-$DEFAULT_DISTRO}"]}"
+	cat <<<"$box_name" > "$boxname_file"
+fi
+
+extra=""
+extra+="ports, mounts = [], []"$'\n'
+extra+="box_name = \"$box_name\""$'\n'
+for port in "${ports[@]}"; do
+	if [[ "$port" =~ ":" ]]; then
+		src="$(cut -d : -f 1 <<<"$port")"
+		dest="$(cut -d : -f 2 <<<"$port")"
+	else
+		src="$port"
+		dest="$port"
+	fi
+	printf "port: %s -> %s\n" "$src" "$dest"
+	extra+="ports << [$src, $dest]"$'\n'
+done
+for mount in "${mounts[@]}"; do
+	src="$(cut -d : -f 1 <<<"$mount")"
+	dest="$(cut -d : -f 2 <<<"$mount")"
+	printf "mount: %s -> %s\n" "$src" "$dest"
+	src="$(readlink -f "$src")"
+	extra+="mounts << [\"$src\", \"$dest\"]"$'\n'
+done
+
+mkdir -p "$vm_dir"
+cat - "$src_vfile" <<<"$extra" > "$vm_vfile"
+cd "$vm_dir"
+vagrant up
