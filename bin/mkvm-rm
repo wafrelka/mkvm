@@ -5,15 +5,15 @@ set -ue
 instances=("$@")
 
 if [ "${#instances[@]}" -eq 0 ] && [ -n "${MKVM_INSTANCE:-}" ]; then
-	instances+=("$MKVM_INSTANCE")
+    instances+=("$MKVM_INSTANCE")
 fi
 
 for instance in "${instances[@]}"; do
-	vm_dir="$MKVM_ROOT/machines/$instance"
-	if [ ! -d "$vm_dir" ]; then
-		printf "machine not found: %s\n" "$instance" >&2
-		exit 1
-	fi
-	(cd "$vm_dir" && vagrant destroy)
-	rm -rf "$vm_dir"
+    vm_dir="$MKVM_ROOT/machines/$instance"
+    if [ ! -d "$vm_dir" ]; then
+        printf "machine not found: %s\n" "$instance" >&2
+        exit 1
+    fi
+    (cd "$vm_dir" && vagrant destroy)
+    rm -rf "$vm_dir"
 done

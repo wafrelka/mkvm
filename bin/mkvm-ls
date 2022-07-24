@@ -1,9 +1,9 @@
 #!/bin/sh
 
 if [ ! -d "$MKVM_ROOT/machines" ]; then
-	exit
+    exit
 fi
 
 for entry in $(ls -1 "$MKVM_ROOT/machines"); do
-	"$MKVM_BIN/mkvm-status" "$entry"
+    "$MKVM_BIN/mkvm-status" "$entry"
 done
