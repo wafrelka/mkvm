@@ -1,5 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ -d "$MKVM_ROOT/machines" ]; then
-	ls -1 "$MKVM_ROOT/machines"
+if [ ! -d "$MKVM_ROOT/machines" ]; then
+	exit
 fi
+
+for entry in $(ls -1 "$MKVM_ROOT/machines"); do
+	vm_dir="$MKVM_ROOT/machines/$entry"
+	raw_status="$(cd "$vm_dir" && vagrant status)"
+	status="$(grep "^default" <<< "$raw_status" | head -n 1 | tr -s ' ' | cut -d ' ' -f 2-)"
+	if (grep "running" <<<"$status" >/dev/null); then
+		status=$'\e'"[1;32m$status"$'\e'"[m"
+	fi
+	printf "%s: %s\n" "$entry" "$status"
+done
