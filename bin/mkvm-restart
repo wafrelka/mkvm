@@ -1,0 +1,2 @@
+#!/bin/sh
+exec "$MKVM_BIN/mkvm-start" "--restart" "$@"
