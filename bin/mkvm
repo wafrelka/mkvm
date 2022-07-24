@@ -13,4 +13,23 @@ subcmd="$1"
 shift 1
 tool="${HERE}/mkvm-${subcmd}"
 
+list_subcommands() {
+    local subcmds=""
+    local prefix="${HERE}/mkvm-"
+    for f in "${prefix}"*; do
+        local c="${f#"${prefix}"}"
+        if [ -n "${subcmds}" ]; then
+            subcmds+=", "
+        fi
+        subcmds+="${c}"
+    done
+    printf "%s" "$subcmds"
+}
+
+if [ ! -f "${tool}" ]; then
+    printf "subcommand '%s' is not available\n" "${subcmd}"
+    printf "subcommands: %s\n" "$(list_subcommands)"
+    exit 1
+fi
+
 MKVM_BIN="${HERE}" MKVM_ROOT="${HOME}/.mkvm" exec "${tool}" "$@"
