@@ -10,7 +10,7 @@ if [ ! -d "${instance_dir}" ]; then
     status="uninitialized"
 else
     raw_status="$(run_vagrant "${name}" status)"
-    status="$(grep "^default" <<< "${raw_status}" | head -n 1 | tr -s ' ' | cut -d ' ' -f 2-)"
+    status="$(grep "^${name}" <<< "${raw_status}" | head -n 1 | tr -s ' ' | cut -d ' ' -f 2-)"
     if (grep "running" <<< "${status}" > /dev/null); then
         status=$'\e'"[1;32m${status}"$'\e'"[m"
     fi
