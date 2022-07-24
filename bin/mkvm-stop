@@ -2,7 +2,7 @@
 
 set -ue
 
-name="$1"
+name="${1:-"${MKVM_INSTANCE:-}"}"
 vm_dir="$MKVM_ROOT/machines/$name"
 
 cd "$vm_dir"

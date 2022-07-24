@@ -8,7 +8,7 @@ declare -A BOXES=(
 	["ubuntu"]="ubuntu/focal64"
 )
 
-name=""
+name="${MKVM_INSTANCE:-}"
 distro=""
 ports=()
 mounts=()
@@ -21,6 +21,11 @@ while [ "$#" -ne 0 ]; do
 		* ) name="$1"; shift 1 ;;
 	esac
 done
+
+if [ -z "$name" ]; then
+	printf "instance name required\n" >&2
+	exit 1
+fi
 
 vm_dir="$MKVM_ROOT/machines/$name"
 boxname_file="$vm_dir/.boxname"
