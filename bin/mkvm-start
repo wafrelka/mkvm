@@ -10,6 +10,7 @@ declare -A BOXES=(
 
 name="${MKVM_INSTANCE:-}"
 distro=""
+restart=""
 ports=()
 mounts=()
 
@@ -18,6 +19,7 @@ while [ "$#" -ne 0 ]; do
 		"-d" | "--distro" ) distro="$2"; shift 2 ;;
 		"-p" | "--port" ) ports+=("$2"); shift 2 ;;
 		"-m" | "--mount" ) mounts+=("$2"); shift 2 ;;
+		"-r" | "--restart" ) restart="1"; shift 1 ;;
 		* ) name="$1"; shift 1 ;;
 	esac
 done
@@ -69,4 +71,7 @@ done
 mkdir -p "$vm_dir"
 cat - "$src_vfile" <<<"$extra" > "$vm_vfile"
 cd "$vm_dir"
+if [ -n "$restart" ]; then
+	vagrant halt
+fi
 vagrant up
