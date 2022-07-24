@@ -1,9 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
-set -ue
+set -ueo pipefail
+source "${MKVM_BIN}/lib/common"
 
 name="${1:-"${MKVM_INSTANCE:-}"}"
-vm_dir="$MKVM_ROOT/machines/$name"
-
-cd "$vm_dir"
-vagrant ssh
+run_vagrant "${name}" ssh

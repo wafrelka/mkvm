@@ -1,12 +1,14 @@
 #!/bin/bash
 
-set -ue
+set -ueo pipefail
+source "${MKVM_BIN}/lib/common"
 
 DEFAULT_DISTRO="arch"
 declare -A BOXES=(
     ["arch"]="archlinux/archlinux"
     ["ubuntu"]="ubuntu/focal64"
 )
+VFILE_TEMPLATE="${MKVM_BIN}/../resources/Vagrantfile"
 
 name="${MKVM_INSTANCE:-}"
 distro=""
@@ -24,55 +26,56 @@ while [ "$#" -ne 0 ]; do
     esac
 done
 
-if [ -z "$name" ]; then
-    printf "instance name required\n" >&2
-    exit 1
-fi
+instance_dir="$(instance_dir_of "${name}")"
+boxname_file="${instance_dir}/.boxname"
+vfile="${instance_dir}/Vagrantfile"
 
-vm_dir="$MKVM_ROOT/machines/$name"
-boxname_file="$vm_dir/.boxname"
-vm_vfile="$vm_dir/Vagrantfile"
-src_vfile="$MKVM_BIN/../resources/Vagrantfile"
-
-if [ -f "$boxname_file" ]; then
-    if [ -n "$distro" ]; then
+if [ -f "${boxname_file}" ]; then
+    if [ -n "${distro}" ]; then
         printf "cannot change distribution without recreating the virtual machine\n" >&2
         exit 1
     fi
-    box_name="$(cat "$boxname_file")"
+    box_name="$(cat "${boxname_file}")"
 else
-    mkdir -p "$vm_dir"
-    box_name="${BOXES["${distro:-$DEFAULT_DISTRO}"]}"
-    cat <<<"$box_name" > "$boxname_file"
+    mkdir -p "${instance_dir}"
+    distro="${distro:-"${DEFAULT_DISTRO}"}"
+    box_name="${BOXES["${distro}"]}"
+    cat <<< "${box_name}" > "${boxname_file}"
 fi
 
-extra=""
-extra+="ports, mounts = [], []"$'\n'
-extra+="box_name = \"$box_name\""$'\n'
-extra+="vm_name = \"$name\""$'\n'
+extra=(
+    "ports = []"
+    "mounts = []"
+    "box_name = \"${box_name}\""
+    "vm_name = \"${name}\""
+)
 for port in "${ports[@]}"; do
-    if [[ "$port" =~ ":" ]]; then
-        src="$(cut -d : -f 1 <<<"$port")"
-        dest="$(cut -d : -f 2 <<<"$port")"
+    if [[ "${port}" =~ ":" ]]; then
+        src="$(cut -d : -f 1 <<< "${port}")"
+        dest="$(cut -d : -f 2 <<< "${port}")"
     else
-        src="$port"
-        dest="$port"
+        src="${port}"
+        dest="${port}"
     fi
-    printf "port: %s -> %s\n" "$src" "$dest"
-    extra+="ports << [$src, $dest]"$'\n'
+    printf "port: %s -> %s\n" "${src}" "${dest}"
+    extra+=("ports << [${src}, ${dest}]")
 done
 for mount in "${mounts[@]}"; do
-    src="$(cut -d : -f 1 <<<"$mount")"
-    dest="$(cut -d : -f 2 <<<"$mount")"
-    printf "mount: %s -> %s\n" "$src" "$dest"
-    src="$(readlink -f "$src")"
-    extra+="mounts << [\"$src\", \"$dest\"]"$'\n'
+    src="$(cut -d : -f 1 <<< "${mount}")"
+    dest="$(cut -d : -f 2 <<< "${mount}")"
+    printf "mount: %s -> %s\n" "${src}" "${dest}"
+    src="$(readlink -f "${src}")"
+    extra+=("mounts << [\"${src}\", \"${dest}\"]")
 done
 
-mkdir -p "$vm_dir"
-cat - "$src_vfile" <<<"$extra" > "$vm_vfile"
-cd "$vm_dir"
-if [ -n "$restart" ]; then
-    vagrant halt
+content=""
+for e in "${extra[@]}"; do
+    content+="${e}"$'\n'
+done
+
+mkdir -p "${instance_dir}"
+cat - "${VFILE_TEMPLATE}" <<<"${content}" > "${vfile}"
+if [ -n "${restart}" ]; then
+    run_vagrant "${name}" halt
 fi
-vagrant up
+run_vagrant "${name}" up

@@ -1,9 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ ! -d "$MKVM_ROOT/machines" ]; then
+set -ueo pipefail
+source "${MKVM_BIN}/lib/common"
+
+if [ ! -d "${MKVM_INSTANCES_DIR}" ]; then
     exit
 fi
 
-for entry in $(ls -1 "$MKVM_ROOT/machines"); do
-    "$MKVM_BIN/mkvm-status" "$entry"
+for dir in "${MKVM_INSTANCES_DIR}/"*; do
+    name="${dir#"${MKVM_INSTANCES_DIR}/"}"
+    "${MKVM_BIN}/mkvm-status" "${name}"
 done

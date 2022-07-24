@@ -1,19 +1,20 @@
 #!/bin/bash
 
-set -ue
+set -ueo pipefail
+source "${MKVM_BIN}/lib/common"
 
 instances=("$@")
 
 if [ "${#instances[@]}" -eq 0 ] && [ -n "${MKVM_INSTANCE:-}" ]; then
-    instances+=("$MKVM_INSTANCE")
+    instances+=("${MKVM_INSTANCE}")
 fi
 
-for instance in "${instances[@]}"; do
-    vm_dir="$MKVM_ROOT/machines/$instance"
-    if [ ! -d "$vm_dir" ]; then
-        printf "machine not found: %s\n" "$instance" >&2
+for name in "${instances[@]}"; do
+    instance_dir="$(instance_dir_of "${name}")"
+    if [ ! -d "${instance_dir}" ]; then
+        printf "instance not found: %s\n" "${name}" >&2
         exit 1
     fi
-    (cd "$vm_dir" && vagrant destroy)
-    rm -rf "$vm_dir"
+    run_vagrant "${name}" destroy
+    rm -r "${instance_dir}"
 done

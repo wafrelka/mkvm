@@ -1,0 +1,17 @@
+#!/bin/bash
+
+MKVM_INSTANCES_DIR="${MKVM_ROOT}/instances"
+
+instance_dir_of() {
+    if [ -z "$1" ]; then
+        printf "instance name required\n" >&2
+        exit 1
+    fi
+    printf "%s" "${MKVM_INSTANCES_DIR}/$1"
+}
+
+run_vagrant() {
+    local name="$1"
+    shift 1
+    cd "$(instance_dir_of "${name}")" && vagrant "$@"
+}

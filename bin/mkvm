@@ -1,16 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 
-set -ue
+set -ueo pipefail
 
 HERE="$(readlink -f "$(dirname "$0")")"
 
 if [ "$#" -lt 1 ]; then
-    printf "usage: %s <COMMAND> [ARGS..]\n" "$0"
+    printf "usage: %s <subcommand> <args>..\n" "$0" >&2
     exit 1
 fi
 
-cmd="$1"
+subcmd="$1"
 shift 1
-script="$HERE/mkvm-$cmd"
+tool="${HERE}/mkvm-${subcmd}"
 
-MKVM_BIN="$HERE" MKVM_ROOT="$HOME/.mkvm" exec "$script" "$@"
+MKVM_BIN="${HERE}" MKVM_ROOT="${HOME}/.mkvm" exec "${tool}" "$@"

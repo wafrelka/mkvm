@@ -1,2 +1,2 @@
-#!/bin/sh
-exec "$MKVM_BIN/mkvm-start" "--restart" "$@"
+#!/bin/bash
+exec "${MKVM_BIN}/mkvm-start" "--restart" "$@"
