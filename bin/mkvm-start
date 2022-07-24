@@ -49,6 +49,7 @@ fi
 extra=""
 extra+="ports, mounts = [], []"$'\n'
 extra+="box_name = \"$box_name\""$'\n'
+extra+="vm_name = \"$name\""$'\n'
 for port in "${ports[@]}"; do
 	if [[ "$port" =~ ":" ]]; then
 		src="$(cut -d : -f 1 <<<"$port")"
