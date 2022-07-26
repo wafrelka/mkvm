@@ -32,4 +32,7 @@ if [ ! -f "${tool}" ]; then
     exit 1
 fi
 
-MKVM_BIN="${HERE}" MKVM_ROOT="${HOME}/.mkvm" exec "${tool}" "$@"
+DEFAULT_XDG_STATE_HOME="${HOME}/.local/state/mkvm"
+export MKVM_BIN="${HERE}"
+export MKVM_ROOT="${XDG_STATE_HOME:-"$DEFAULT_XDG_STATE_HOME"}"
+exec "${tool}" "$@"
