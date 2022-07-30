@@ -3,5 +3,12 @@
 set -ueo pipefail
 source "${MKVM_BIN}/lib/common"
 
-name="${1:-"${MKVM_INSTANCE:-}"}"
-run_vagrant "${name}" ssh
+name=""
+
+if [ $# -ge 1 ] && [ "$1" != "--" ] && instance_exists "$1"; then
+    name="$1"
+    shift
+fi
+
+name="${name:-"${MKVM_INSTANCE:-}"}"
+run_vagrant "${name}" ssh -- "$@"

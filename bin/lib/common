@@ -10,6 +10,10 @@ instance_dir_of() {
     printf "%s" "${MKVM_INSTANCES_DIR}/$1"
 }
 
+instance_exists() {
+    test -d "$(instance_dir_of "$1")"
+}
+
 run_vagrant() {
     local name="$1"
     local dir
