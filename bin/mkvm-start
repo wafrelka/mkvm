@@ -51,14 +51,14 @@ extra=(
 )
 for port in "${ports[@]}"; do
     if [[ "${port}" =~ ":" ]]; then
-        src="$(cut -d : -f 1 <<< "${port}")"
-        dest="$(cut -d : -f 2 <<< "${port}")"
+        host_port="$(cut -d : -f 1 <<< "${port}")"
+        guest_port="$(cut -d : -f 2 <<< "${port}")"
     else
-        src="${port}"
-        dest="${port}"
+        host_port="${port}"
+        guest_port="${port}"
     fi
-    printf "port: %s -> %s\n" "${src}" "${dest}"
-    extra+=("ports << [${src}, ${dest}]")
+    printf "port: %s (host) -> %s (guest)\n" "${host_port}" "${guest_port}"
+    extra+=("ports << [${host_port}, ${guest_port}]")
 done
 for mount in "${mounts[@]}"; do
     src="$(cut -d : -f 1 <<< "${mount}")"
